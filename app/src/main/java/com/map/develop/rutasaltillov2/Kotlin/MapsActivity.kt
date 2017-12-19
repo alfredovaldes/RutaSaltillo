@@ -6,6 +6,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Application
 import android.app.ProgressDialog
 import android.content.Context
@@ -14,22 +15,21 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.location.Location
 import android.location.LocationManager
+import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.*
 import com.google.android.gms.maps.model.*
-import com.map.develop.rutasaltillov2.JSonParsers.Rutas
-import com.map.develop.rutasaltillov2.JSonParsers.RutasFinder
-import com.map.develop.rutasaltillov2.JSonParsers.jsonParseCamiones
-import com.map.develop.rutasaltillov2.JSonParsers.jsonParseRutas
+import com.map.develop.rutasaltillov2.JSonParsers.*
 import com.map.develop.rutasaltillov2.JSonParsers.jsonParseRutas.getListaRutas
 import com.map.develop.rutasaltillov2.SearchRoute.DirectionFinder
 import com.map.develop.rutasaltillov2.SearchRoute.DirectionFinderListener
 import com.map.develop.rutasaltillov2.SearchRoute.Route
 import com.map.develop.rutasaltillov2.R
 import java.io.UnsupportedEncodingException
-import java.util.ArrayList
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MapsActivity :AppCompatActivity(), OnMapReadyCallback, DirectionFinderListener {
 
@@ -55,6 +55,23 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback, DirectionFinderList
     //Variables para AutoCompleteText
     lateinit var textViewCompleteText: AutoCompleteTextView
 
+    val UI_HANDLER = Handler()
+    val UI_UPDTAE_RUNNABLE = object : Runnable {
+
+        override fun run() {
+            //drawAllMarker()//Method that will get employee location and draw it on map
+            Log.i("TIMER","Hola")
+            var points:List<LatLng> = ArrayList<LatLng>()
+            val process = parsePosiciones()
+            process.execute(applicationContext,points)
+            Log.d("SUP","Pirata de culiacan")
+            for (a in 0 until process.points.size)
+            {
+                addMarker(process.points[a].latitude, process.points[a].longitude)
+            }
+            UI_HANDLER.postDelayed(this, 30000)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +95,7 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback, DirectionFinderList
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         myPoss()
+        UI_HANDLER.postDelayed(UI_UPDTAE_RUNNABLE, 3000)
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
@@ -91,12 +109,12 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback, DirectionFinderList
             Log.e(TAG, "Can't find style. Error: ", e)
         }
         //Position the map's camera near Saltillo,Coahuila.
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(25.4432512, -100.95098),8f))
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(25.425166,-101.0094829), 13.0F))
         //autoCompletText()
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return
         }
-        mMap!!.setMyLocationEnabled(true)
+        mMap!!.isMyLocationEnabled = true
     }
 
     private fun addMarker(lat: Double, lng: Double) {
@@ -120,7 +138,7 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback, DirectionFinderList
         if (location != null) {
             lat = location.latitude
             lng = location.longitude
-            addMarker(lat, lng)
+            addMarker(lat,lng)
 
         }
     }
