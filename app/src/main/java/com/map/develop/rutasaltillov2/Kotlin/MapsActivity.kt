@@ -218,7 +218,9 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback, DirectionFinderList
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        mUIUpdater = UIUpdater(Runnable { setUpMap() })
+        mUIUpdater = UIUpdater(Runnable {
+            mMap!!.clear()
+            setUpMap() })
 
         mUIUpdater!!.startUpdates()
 
@@ -245,6 +247,7 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback, DirectionFinderList
         // In a worker thread since it's a network operation.
         Thread(Runnable {
             try {
+
                 retrieveAndAddCities()
             } catch (e: IOException) {
                 Log.e("FAIL", "Cannot retrive cities", e)
@@ -332,77 +335,16 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback, DirectionFinderList
         when(json.get("descripcion")) {
             rutaSeleccionada ->
             {
-                if (markers.isEmpty()) {
-                    val marker = mMap!!.addMarker(MarkerOptions()
-                            .title(json.getString("descripcion"))
-                            .position(LatLng(
-                                    json.getDouble("lat"),
-                                    json.getDouble("lng")
-                            ))
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus))
-                    )
-                    marker.tag = json.getInt("id")
-                    markers.add(marker)
-                } else {
-                    /*
-                    var index = -1
-                    markers.forEach({ u ->
-                        if (u.tag == json.getInt("id")) {
-                            index = (u.tag as Int) - 1
-                        }
-                    }
-                    )
-                    if (index == -1) {
-                        val marker = mMap!!.addMarker(MarkerOptions()
-                                .title(json.getString("descripcion"))
-                                .position(LatLng(
-                                        json.getDouble("lat"),
-                                        jccson.getDouble("lng")
-                                ))
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)))
-                        marker.tag = json.getInt("id")
-                        markers.add(marker)
-                    } else {
-                        markers[index].position = LatLng(
+                val marker = mMap!!.addMarker(MarkerOptions()
+                        .title(json.getString("descripcion"))
+                        .position(LatLng(
                                 json.getDouble("lat"),
                                 json.getDouble("lng")
-                        )
-                        }
-                        */
-                    var results = ArrayList<Int>()
-                    var resultsDesc = ArrayList<Int>()
-                    for (i in 0 until markers.size)
-                    {
-                        if (json.getInt("id") === markers.get(i).tag)
-                        {
-                            // found value at index i
-                            results.add(i)
-                        }
-                        else{
-                            val marker = mMap!!.addMarker(MarkerOptions()
-                                    .title(json.getString("descripcion"))
-                                    .position(LatLng(
-                                            json.getDouble("lat"),
-                                            json.getDouble("lng")
-                                    ))
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)))
-                            marker.tag = json.getInt("id")
-                            markers.add(marker)
-                        }
-                    }
-                    if(results.isNotEmpty()){
-                        for (j in 0 until markers.size){
-                            if (json.getString("desc") === markers.get(j).title)
-                            {
-                                resultsDesc.add(j)
-                            }
-                        }
-                        markers[resultsDesc[0]].position= LatLng(
-                                json.getDouble("lat"),
-                                json.getDouble("lng")
-                        )
-                    }
-                }
+                        ))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus))
+                )
+                marker.tag = json.getInt("id")
+                markers.add(marker)
 
             }
         }
