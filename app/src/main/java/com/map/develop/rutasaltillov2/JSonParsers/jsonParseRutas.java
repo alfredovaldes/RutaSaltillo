@@ -23,6 +23,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.map.develop.rutasaltillov2.Java.Test;
+import com.map.develop.rutasaltillov2.Kotlin.MapsActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -105,7 +106,6 @@ public class jsonParseRutas extends AsyncTask<Context,Void,Void> {
             {
                 JSONObject jo=ja.getJSONObject(i);
                 listaRutas.add(jo.get("nombre"));
-                Log.d("nombre", listaRutas.get(i).toString());
                 setListaRutas(listaRutas);
             }
         } catch (MalformedURLException e) {
@@ -125,9 +125,6 @@ public class jsonParseRutas extends AsyncTask<Context,Void,Void> {
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
         Log.d("wtf", "SI jalo el get compa");
-        //Cambiar a Activity en turno
-        //Test es llamado desde manifest cambiar a actividad o clase en turno
-        //.data.setText(this.dataParse);
     }
 
     //Get y Set de Array List

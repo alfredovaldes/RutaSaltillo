@@ -1,32 +1,31 @@
 package com.map.develop.rutasaltillov2.JSonParsers;
-import android.content.Context;
 import android.os.AsyncTask;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import android.util.Log;
-import com.google.android.gms.maps.model.LatLng;
-import org.json.JSONArray;
+
+import com.map.develop.rutasaltillov2.Kotlin.MapsActivity;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import java.util.ArrayList;
-import java.util.List;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class parsePosiciones extends AsyncTask<Context, Void, List<LatLng>> {
-    List<LatLng> points = new ArrayList<LatLng>();
+public class parsePosiciones extends AsyncTask<Posiciones, Void, Void> {
+    Posiciones posx = new Posiciones();
     @Override
-    protected Void doInBackground(Context... params) {
-        Context context = (Context) params[0];
+    protected Void doInBackground(Posiciones... params) {
+        posx = (Posiciones) params[0];
         try {
-            String url = "https://busmia.herokuapp.com/posicion/";
+            String url = "https://busmia.herokuapp.com/posicion/"+posx.idCamion;
             Log.d("WTF", url);
-            Log.d("wtf", context.getFilesDir().getPath());
+            //Log.d("wtf", posx.context.getFilesDir().getPath());
             JSONParser parser = new JSONParser();
             File file = new File("/storage/emulated/0/Android/data/com.map.develop.rutasaltillov2/files/jwt.token");
             FileReader fileReader = new FileReader(file);
@@ -43,12 +42,8 @@ public class parsePosiciones extends AsyncTask<Context, Void, List<LatLng>> {
                     .build();
             Response response = client.newCall(request).execute();
             JSONObject ja = new JSONObject(response.body().string());
-            for (int i = 0; i < ja.length(); i++) {
-                JSONObject junior = ja.getJSONObject(String.valueOf(i));
-                points.add(new LatLng(Double.parseDouble(junior.get("lat").toString()), Double.parseDouble(junior.get("lng").toString())));
-                Log.d("LatLng", points.get(i).toString());
-                setPoints(points);
-            }
+                posx.latitud= Double.valueOf(ja.get("lat").toString());
+                posx.longitud=Double.valueOf(ja.get("lng").toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -58,19 +53,16 @@ public class parsePosiciones extends AsyncTask<Context, Void, List<LatLng>> {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        params[0]=posx;
         return null;
     }
-    @Override
-    protected void onPostExecute(Void aVoid,List<LatLng>... params) {
+
+    protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        Log.d("wtf", "SI jalo el get de posiciones compa");
-        return getPoints();
-    }
-    //Get y Set de Array List
-    public List<LatLng> getPoints() {
-        return points;
-    }
-    public void setPoints(List<LatLng> points) {
-        this.points = points;
+        Log.d("wtf",(String.valueOf(posx.latitud)));
+        Log.d("wtf",(String.valueOf(posx.longitud)));
+        MapsActivity mapsActivity = new MapsActivity();
+        //mapsActivity.addMarker(posx.latitud,posx.longitud);
+
     }
 }

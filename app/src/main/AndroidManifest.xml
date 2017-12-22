@@ -24,15 +24,22 @@
         <activity
             android:name=".Kotlin.SplashActivity"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            -->
+        </activity>
+
+
+        <!-- LoginAncivity -->
+        <activity android:name=".Kotlin.LoginActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-        <!-- LoginAncivity -->
-        <activity android:name=".Kotlin.LoginActivity" />
 
         <!-- Map Fragment -->
         <meta-data
