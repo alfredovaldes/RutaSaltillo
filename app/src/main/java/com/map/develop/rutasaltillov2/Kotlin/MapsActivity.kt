@@ -1,36 +1,31 @@
 package com.map.develop.rutasaltillov2.Kotlin
 
-import android.os.Bundle
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
 import android.Manifest
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.location.Location
 import android.os.Build
-import android.os.Handler
-import android.renderscript.ScriptIntrinsicYuvToRGB
+import android.os.Bundle
 import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.map.develop.rutasaltillov2.JSonParsers.UIUpdater
 import com.map.develop.rutasaltillov2.R
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.json.simple.parser.JSONParser
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
-import java.io.InputStreamReader
 import java.net.HttpURLConnection
-import java.net.URL
 
 class MapsActivity :AppCompatActivity(), OnMapReadyCallback{
 
@@ -38,7 +33,7 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback{
     private val TAG = MapsActivity::class.java.simpleName
 //Variable para seleccion
     lateinit var selectionRutas:String get
-
+    var markers:ArrayList<Marker> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,14 +46,11 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback{
 
     var mUIUpdater: UIUpdater? = null
 
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        mUIUpdater = UIUpdater(object:Runnable {
-            public override fun run() {
-                setUpMap()
-            }
-        })
+        mUIUpdater = UIUpdater(Runnable { setUpMap() })
 
         mUIUpdater!!.startUpdates()
 
@@ -79,10 +71,10 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback{
         mMap!!.isMyLocationEnabled = true
     }
 
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun setUpMap() {
         // Retrieve the city data from the web service
         // In a worker thread since it's a network operation.
-        mMap!!.clear()
         Thread(Runnable {
             try {
                 retrieveAndAddCities()
@@ -120,10 +112,9 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback{
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     @Throws(IOException::class)
-    protected fun retrieveAndAddCities() {
+    private fun retrieveAndAddCities() {
         Log.d("SUP","ENTRE")
         var conn: HttpURLConnection? = null
-        var json: JSONObject
         try
         {
             var parser = JSONParser()
@@ -142,15 +133,15 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback{
             var json = JSONObject(response.body()!!.string())
             for(i in  json.keys()) {
                 var json1 = json.getJSONObject(i)
-                    runOnUiThread(object : Runnable {
-                        override fun run() {
-                            try {
-                                createMarkersFromJson(json1)
-                            } catch (e: JSONException) {
-                                Log.e("WTF", "Error processing JSON", e)
-                            }
+                runOnUiThread(object : Runnable {
+                    override fun run() {
+                        try {
+                            createMarkersFromJson(json1)
+                        } catch (e: JSONException) {
+                            Log.e("WTF", "Error processing JSON", e)
                         }
-                    })
+                    }
+                })
             }
         }
         catch (e:IOException) {
@@ -164,26 +155,46 @@ class MapsActivity :AppCompatActivity(), OnMapReadyCallback{
                 conn.disconnect()
             }
         }
-        // Create markers for the city data.
-        // Must run this on the UI thread since it's a UI operation.
-
     }
     @Throws(JSONException::class)
     fun createMarkersFromJson(json:JSONObject) {
-        // De-serialize the JSON string into an array of city objects
-        Log.d("SUP","ENTRE AL DE LOS JSON")
-
-        //val jsonArray = JSONArray(json.toString())
-        Log.d("sup",json.toString())
-
-            mMap!!.addMarker(MarkerOptions()
+        if(markers.isEmpty()) {
+            val marker = mMap!!.addMarker(MarkerOptions()
                     .title(json.getString("descripcion"))
                     .position(LatLng(
                             json.getDouble("lat"),
                             json.getDouble("lng")
                     ))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus))
-
-        )
+            )
+            marker.tag = json.getInt("id")
+            markers.add(marker)
         }
+        else {
+            var index = -1
+            markers.forEach({ u ->
+                if (u.tag == json.getInt("id")) {
+                    index = (u.tag as Int)-1
+                }
+            }
+            )
+            if(index==-1){
+                val marker = mMap!!.addMarker(MarkerOptions()
+                        .title(json.getString("descripcion"))
+                        .position(LatLng(
+                                json.getDouble("lat"),
+                                json.getDouble("lng")
+                        ))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)))
+                marker.tag=json.getInt("id")
+                markers.add(marker)
+            }
+            else{
+                markers[index].position= LatLng(
+                        json.getDouble("lat"),
+                        json.getDouble("lng")
+                )
+            }
+        }
+    }
 }
