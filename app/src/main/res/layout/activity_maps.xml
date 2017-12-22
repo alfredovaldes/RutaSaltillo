@@ -5,16 +5,7 @@
     tools:context="com.map.develop.rutasaltillov2.Kotlin.MapsActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"  >
-
-    <AutoCompleteTextView
-        android:id="@+id/autocomplete_rutas"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        tools:text="Ej:R-ruta" />
+    android:orientation="vertical">
 
 
     <EditText
@@ -22,40 +13,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Ingresa Direccion de Destino"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <EditText
         android:id="@+id/etOrigin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Ingresa Direccion de Origen"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
 
         <Button
             android:id="@+id/btnFindPath"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ruta" />
+            android:text="Ruta"
+            android:visibility="gone"/>
 
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="5dp"
-            android:src="@drawable/ic_distance" />
+            android:src="@drawable/ic_distance"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/tvDistance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:text="0 km" />
+            android:text="0 km"
+            android:visibility="gone"/>
 
         <ImageView
             android:layout_width="40dp"
@@ -63,17 +58,28 @@
             android:layout_marginLeft="20dp"
             android:layout_marginTop="5dp"
             android:padding="5dp"
-            android:src="@drawable/ic_clock" />
+            android:src="@drawable/ic_clock"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/tvDuration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:text="0 min" />
+            android:text="0 min"
+            android:visibility="gone"/>
 
     </LinearLayout>
 
+
+    <Spinner
+        android:id="@+id/autocomplete_rutas"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        tools:text="Ej:R-ruta" />
 
     <fragment
         android:id="@+id/map"
